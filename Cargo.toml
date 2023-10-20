@@ -1,0 +1,12 @@
+[package]
+name = "transit-query"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+maplit = "1.0.2"
+serde = { version = "1.0.189", features = ["derive"] }
+serde_json = "1.0.107"
+trustfall = { git = "https://github.com/obi1kenobi/trustfall.git", branch = "separate_storage_and_use_types" }

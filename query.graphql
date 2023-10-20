@@ -1,0 +1,10 @@
+{
+    Vehicle {
+        label @filter(op: "regex", value: ["$newRedLineCars"]) 
+              @output
+        
+        trip {
+            id @output 
+        }
+    }
+}
