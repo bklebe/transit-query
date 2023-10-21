@@ -2,8 +2,9 @@ use std::sync::{Arc, OnceLock};
 
 use trustfall::{
     provider::{
-        resolve_coercion_using_schema, AsVertex, ContextIterator, ContextOutcomeIterator,
-        EdgeParameters, ResolveEdgeInfo, ResolveInfo, VertexIterator,
+        resolve_coercion_using_schema, resolve_property_with, AsVertex, ContextIterator, 
+        ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo, Typename,
+        VertexIterator,
     },
     FieldValue, Schema,
 };
@@ -58,6 +59,10 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         property_name: &Arc<str>,
         resolve_info: &ResolveInfo,
     ) -> ContextOutcomeIterator<'a, V, FieldValue> {
+        if property_name.as_ref() == "__typename" {
+            return resolve_property_with(contexts, |vertex| vertex.typename().into());
+        }
+        
         match type_name.as_ref() {
             "Route" => super::properties::resolve_route_property(
                 contexts,
