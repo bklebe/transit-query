@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, sync::Arc};
 
 use maplit::btreemap;
 use serde::{Deserialize, Serialize};
-use trustfall::execute_query;
+use trustfall::{execute_query, TransparentValue};
 
 use crate::adapter::Adapter;
 
@@ -20,13 +20,14 @@ fn main() {
         adapter.into(),
         include_str!("../query.graphql"),
         btreemap! {
-            Arc::from("routeId") => Arc::from("Red"),
+            Arc::from("newGreenLineCars") => Arc::from(r"(390\d|391\d|392[0-3])"),
+            Arc::from("routeId") => Arc::from("Green-.*"),
         },
     )
     .expect("query failed to parse")
     .map(|v| {
         v.into_iter()
-            // .map(|(k, v)| (k, TransparentValue::from(v)))
+            .map(|(k, v)| (k, TransparentValue::from(v)))
             .collect::<BTreeMap<_, _>>()
     })
     .for_each(|result| {

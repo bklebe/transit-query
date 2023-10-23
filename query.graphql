@@ -1,8 +1,12 @@
 {
   Vehicle {
+    label @output @filter(op: "regex", value: ["$newGreenLineCars"])
+    latitude @output
+    longitude @output
+
     trip {
       id @output
-      route_id @output @filter(op: "=", value: ["$routeId"])
+      route_id @output @filter(op: "regex", value: ["$routeId"])
     }
   }
 }
