@@ -1,6 +1,7 @@
 use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 use gtfs_schedule::GtfsSchedule;
+use maplit::btreemap;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use trustfall::{execute_query, TransparentValue};
 
@@ -14,11 +15,11 @@ fn main() {
     let trip_updates = get_feed("https://cdn.mbta.com/realtime/TripUpdates.json");
     let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
     let adapter: Adapter = Adapter::new(&contents, &trip_updates, &schedule);
-    let variables: BTreeMap<Arc<str>, Arc<str>> = BTreeMap::new();
+    let variables: BTreeMap<Arc<str>, Arc<str>> = btreemap! {Arc::from("minLabel") => Arc::from("3900")};
     execute_query(
         Adapter::schema(),
         adapter.into(),
-        include_str!("../query.graphql"),
+        include_str!("../query.gql"),
         variables,
     )
     .expect("query failed to parse")

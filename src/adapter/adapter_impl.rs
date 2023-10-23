@@ -24,7 +24,7 @@ pub struct Adapter<'a> {
 }
 
 impl<'a> Adapter<'a> {
-    pub const SCHEMA_TEXT: &'static str = include_str!("./schema.graphql");
+    pub const SCHEMA_TEXT: &'static str = include_str!("./schema.gql");
 
     pub fn schema() -> &'static Schema {
         SCHEMA.get_or_init(|| Schema::parse(Self::SCHEMA_TEXT).expect("not a valid schema"))
