@@ -1,5 +1,6 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::{collections::BTreeMap, path::Path, sync::Arc};
 
+use gtfs_schedule::GtfsSchedule;
 use maplit::btreemap;
 use serde::{Deserialize, Serialize};
 use trustfall::{execute_query, TransparentValue};
@@ -7,6 +8,7 @@ use trustfall::{execute_query, TransparentValue};
 use crate::adapter::Adapter;
 
 mod adapter;
+mod gtfs_schedule;
 
 fn main() {
     let body = reqwest::blocking::get("https://cdn.mbta.com/realtime/VehiclePositions.json")
@@ -14,7 +16,8 @@ fn main() {
         .text()
         .expect("invalid response encoding");
     let contents: Message = serde_json::from_str(&body).expect("couldn't deserialize");
-    let adapter: Adapter = Adapter::new(&contents);
+    let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
+    let adapter: Adapter = Adapter::new(&contents, &schedule);
     execute_query(
         Adapter::schema(),
         adapter.into(),

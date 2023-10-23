@@ -2,14 +2,17 @@ use std::sync::{Arc, OnceLock};
 
 use trustfall::{
     provider::{
-        resolve_coercion_using_schema, resolve_property_with, AsVertex, ContextIterator, 
-        ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo, Typename,
-        VertexIterator,
+        resolve_coercion_using_schema, resolve_neighbors_with, resolve_property_with, AsVertex,
+        ContextIterator, ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo,
+        Typename, VertexIterator,
     },
     FieldValue, Schema,
 };
 
-use crate::Message;
+use crate::{
+    gtfs_schedule::{GtfsSchedule, Route},
+    Message,
+};
 
 use super::vertex::Vertex;
 
@@ -19,6 +22,7 @@ static SCHEMA: OnceLock<Schema> = OnceLock::new();
 #[derive(Debug)]
 pub struct Adapter<'a> {
     message: &'a Message,
+    gtfs_schedule: &'a GtfsSchedule,
 }
 
 impl<'a> Adapter<'a> {
@@ -28,8 +32,11 @@ impl<'a> Adapter<'a> {
         SCHEMA.get_or_init(|| Schema::parse(Self::SCHEMA_TEXT).expect("not a valid schema"))
     }
 
-    pub(crate) fn new(message: &'a Message) -> Self {
-        Self { message }
+    pub(crate) fn new(message: &'a Message, gtfs_schedule: &'a GtfsSchedule) -> Self {
+        Self {
+            message,
+            gtfs_schedule,
+        }
     }
 }
 
@@ -62,7 +69,7 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         if property_name.as_ref() == "__typename" {
             return resolve_property_with(contexts, |vertex| vertex.typename().into());
         }
-        
+
         match type_name.as_ref() {
             "Route" => super::properties::resolve_route_property(
                 contexts,
@@ -101,12 +108,26 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Self::Vertex>> {
         match type_name.as_ref() {
-            "Trip" => super::edges::resolve_trip_edge(
-                contexts,
-                edge_name.as_ref(),
-                parameters,
-                resolve_info,
-            ),
+            "Trip" => match edge_name.as_ref() {
+                "route" => resolve_neighbors_with(contexts, |vertex| {
+                    let route_id = &vertex.as_trip().expect("not a Trip").route_id;
+                    let matching_routes =
+                        self.gtfs_schedule.routes.iter().filter_map(move |route| {
+                            if &route.route_id == route_id {
+                                Some(Vertex::Route(route))
+                            } else {
+                                None
+                            }
+                        });
+                    Box::new(matching_routes)
+                }),
+                _ => super::edges::resolve_trip_edge(
+                    contexts,
+                    edge_name.as_ref(),
+                    parameters,
+                    resolve_info,
+                ),
+            },
             "Vehicle" => super::edges::resolve_vehicle_edge(
                 contexts,
                 edge_name.as_ref(),

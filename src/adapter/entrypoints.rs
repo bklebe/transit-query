@@ -1,6 +1,6 @@
 use trustfall::provider::{ResolveInfo, VertexIterator};
 
-use crate::Message;
+use crate::{gtfs_schedule::GtfsSchedule, Message};
 
 use super::vertex::Vertex;
 
