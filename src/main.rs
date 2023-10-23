@@ -1,8 +1,7 @@
 use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 use gtfs_schedule::GtfsSchedule;
-use maplit::btreemap;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use trustfall::{execute_query, TransparentValue};
 
 use crate::adapter::Adapter;
@@ -11,21 +10,16 @@ mod adapter;
 mod gtfs_schedule;
 
 fn main() {
-    let body = reqwest::blocking::get("https://cdn.mbta.com/realtime/VehiclePositions.json")
-        .expect("couldn't pull VehiclePositions.json")
-        .text()
-        .expect("invalid response encoding");
-    let contents: Message = serde_json::from_str(&body).expect("couldn't deserialize");
+    let contents = get_feed("https://cdn.mbta.com/realtime/VehiclePositions.json");
+    let trip_updates = get_feed("https://cdn.mbta.com/realtime/TripUpdates.json");
     let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
-    let adapter: Adapter = Adapter::new(&contents, &schedule);
+    let adapter: Adapter = Adapter::new(&contents, &trip_updates, &schedule);
+    let variables: BTreeMap<Arc<str>, Arc<str>> = BTreeMap::new();
     execute_query(
         Adapter::schema(),
         adapter.into(),
         include_str!("../query.graphql"),
-        btreemap! {
-            Arc::from("newGreenLineCars") => Arc::from(r"(390\d|391\d|392[0-3])"),
-            Arc::from("routeId") => Arc::from("Green-.*"),
-        },
+        variables,
     )
     .expect("query failed to parse")
     .map(|v| {
@@ -41,6 +35,18 @@ fn main() {
     });
 }
 
+fn get_feed<T>(url: &str) -> T
+where
+    T: DeserializeOwned,
+{
+    let body = reqwest::blocking::get(url)
+        .unwrap_or_else(|_| panic!("couldn't pull {}", url))
+        .text()
+        .expect("invalid response encoding");
+    let contents: T = serde_json::from_str(&body).expect("couldn't deserialize");
+    contents
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Position {
     bearing: i64,
@@ -52,8 +58,8 @@ pub(crate) struct Position {
 pub struct TripDescriptor {
     direction_id: i64,
     route_id: String,
-    schedule_relationship: String,
-    start_date: String,
+    schedule_relationship: Option<String>,
+    start_date: Option<String>,
     start_time: Option<String>,
     trip_id: String,
 }
@@ -61,7 +67,7 @@ pub struct TripDescriptor {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct VehicleDescriptor {
     id: String,
-    label: String,
+    label: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -78,12 +84,42 @@ pub struct VehiclePosition {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct Entity {
+pub(crate) struct VehicleEntity {
     id: String,
     vehicle: VehiclePosition,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct Message {
-    entity: Vec<Entity>,
+pub(crate) struct VehiclePositions {
+    entity: Vec<VehicleEntity>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub(crate) struct TripEntity {
+    id: String,
+    trip_update: TripUpdate,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct StopTimeEvent {
+    time: i64,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct StopTimeUpdate {
+    arrival: Option<StopTimeEvent>,
+    departure: Option<StopTimeEvent>,
+    stop_id: String,
+    stop_sequence: i64,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct TripUpdate {
+    stop_time_update: Option<Vec<StopTimeUpdate>>,
+    timestamp: Option<i64>,
+    trip: TripDescriptor,
+    vehicle: Option<VehicleDescriptor>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub(crate) struct TripUpdates {
+    entity: Vec<TripEntity>,
 }

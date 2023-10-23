@@ -9,7 +9,7 @@ use trustfall::{
     FieldValue, Schema,
 };
 
-use crate::{gtfs_schedule::GtfsSchedule, Message};
+use crate::{gtfs_schedule::GtfsSchedule, TripUpdates, VehiclePositions};
 
 use super::vertex::Vertex;
 
@@ -18,7 +18,8 @@ static SCHEMA: OnceLock<Schema> = OnceLock::new();
 #[non_exhaustive]
 #[derive(Debug)]
 pub struct Adapter<'a> {
-    message: &'a Message,
+    vehicle_positions: &'a VehiclePositions,
+    trip_updates: &'a TripUpdates,
     gtfs_schedule: &'a GtfsSchedule,
 }
 
@@ -29,9 +30,14 @@ impl<'a> Adapter<'a> {
         SCHEMA.get_or_init(|| Schema::parse(Self::SCHEMA_TEXT).expect("not a valid schema"))
     }
 
-    pub(crate) fn new(message: &'a Message, gtfs_schedule: &'a GtfsSchedule) -> Self {
+    pub(crate) fn new(
+        vehicle_positions: &'a VehiclePositions,
+        trip_updates: &'a TripUpdates,
+        gtfs_schedule: &'a GtfsSchedule,
+    ) -> Self {
         Self {
-            message,
+            vehicle_positions,
+            trip_updates,
             gtfs_schedule,
         }
     }
@@ -47,7 +53,8 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         resolve_info: &ResolveInfo,
     ) -> VertexIterator<'a, Self::Vertex> {
         match edge_name.as_ref() {
-            "Vehicle" => super::entrypoints::vehicle(self.message, resolve_info),
+            "Vehicle" => super::entrypoints::vehicle(self.vehicle_positions, resolve_info),
+            // "Trip" => super::entrypoints::trip(self.trip_updates, resolve_info),
             _ => {
                 unreachable!(
                     "attempted to resolve starting vertices for unexpected edge name: {edge_name}"
