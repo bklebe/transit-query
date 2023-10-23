@@ -1,11 +1,10 @@
 {
-    Vehicle {
-        label @filter(op: "regex", value: ["$newRedLineCars"]) 
-              @output
-        
-        trip {
-            id @output
-            route_id @filter(op: "has_substring", value: ["$redLineRouteId"]) @output
-        }
+  Vehicle {
+    label @output @filter(op: "regex", value: ["$newRedLineCars"])
+
+    trip {
+      id @output
+      route_id @output @filter(op: "eq", value: ["$redLineRouteId"])
     }
+  }
 }
