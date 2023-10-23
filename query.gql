@@ -7,7 +7,7 @@
 
     trip {
       route {
-        long_name @output
+        long_name @output @filter(op: "!=", value: [short_name])
       }
     }
   }

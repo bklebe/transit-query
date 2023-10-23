@@ -44,7 +44,7 @@ pub struct Stop {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Trip {
+pub struct ScheduledTrip {
     pub(super) route_id: String,
     pub(super) service_id: String,
     pub(super) trip_id: String,
