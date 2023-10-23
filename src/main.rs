@@ -18,13 +18,14 @@ fn main() {
         adapter.into(),
         include_str!("../query.graphql"),
         btreemap! {
-            Arc::from("newRedLineCars") => Arc::from(r"^[12]\d{3}$"),
+            Arc::from("newRedLineCars") => Arc::from(r"(190\d|19[1-9]\d|20\d{2}|21[0-4]\d|215[01])"),
+            Arc::from("redLineRouteId") => Arc::from("Red"),
         },
     )
     .expect("query failed to parse")
     .map(|v| {
         v.into_iter()
-            .map(|(k, v)| (k, TransparentValue::from(v)))
+            // .map(|(k, v)| (k, TransparentValue::from(v)))
             .collect::<BTreeMap<_, _>>()
     })
     .for_each(|result| {

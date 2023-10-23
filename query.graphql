@@ -4,7 +4,8 @@
               @output
         
         trip {
-            id @output 
+            id @output
+            route_id @filter(op: "has_substring", value: ["$redLineRouteId"]) @output
         }
     }
 }
