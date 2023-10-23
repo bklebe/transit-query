@@ -1,2 +1,2 @@
-schema: 'src/adapter/schema.graphql'
+schema: 'src/adapter/schema.gql'
 documents: '*.{graphql,gql,js,ts,jsx,tsx}'
