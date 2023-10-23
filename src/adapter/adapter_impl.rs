@@ -9,10 +9,7 @@ use trustfall::{
     FieldValue, Schema,
 };
 
-use crate::{
-    gtfs_schedule::{GtfsSchedule, Route},
-    Message,
-};
+use crate::{gtfs_schedule::GtfsSchedule, Message};
 
 use super::vertex::Vertex;
 

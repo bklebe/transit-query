@@ -18,9 +18,7 @@ pub(super) fn resolve_route_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
         "short_name" => {
             resolve_property_with(contexts, field_property!(as_route, route_short_name))
         }
-        "long_name" => {
-            resolve_property_with(contexts, field_property!(as_route, route_long_name))
-        }
+        "long_name" => resolve_property_with(contexts, field_property!(as_route, route_long_name)),
         _ => {
             unreachable!("attempted to read unexpected property '{property_name}' on type 'Route'")
         }

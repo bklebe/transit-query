@@ -98,9 +98,7 @@ mod vehicle {
             let vertex: &VehiclePosition = vertex
                 .as_vehicle()
                 .expect("conversion failed, vertex was not a Vehicle");
-            Box::new(
-                vertex.trip.as_ref().map(Vertex::Trip).into_iter()
-            )
+            Box::new(vertex.trip.as_ref().map(Vertex::Trip).into_iter())
         })
     }
 }

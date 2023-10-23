@@ -1,8 +1,8 @@
 mod adapter_impl;
-mod vertex;
+mod edges;
 mod entrypoints;
 mod properties;
-mod edges;
+mod vertex;
 
 #[cfg(test)]
 mod tests;
