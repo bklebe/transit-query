@@ -14,7 +14,7 @@ pub(super) fn resolve_route_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
     _resolve_info: &ResolveInfo,
 ) -> ContextOutcomeIterator<'a, V, FieldValue> {
     match property_name {
-        "id" => resolve_property_with(contexts, field_property!(as_trip, route_id)),
+        "id" => todo!("implement property 'id' in fn `resolve_route_property()`"),
         "route_short_name" => {
             todo!("implement property 'route_short_name' in fn `resolve_route_property()`")
         }

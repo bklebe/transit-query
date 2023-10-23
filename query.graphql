@@ -1,10 +1,8 @@
 {
   Vehicle {
-    label @output @filter(op: "regex", value: ["$newRedLineCars"])
-
     trip {
       id @output
-      route_id @output @filter(op: "=", value: ["$redLineRouteId"])
+      route_id @output @filter(op: "=", value: ["$routeId"])
     }
   }
 }

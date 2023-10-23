@@ -1,25 +1,26 @@
-use std::{collections::BTreeMap, result, sync::Arc};
+use std::{collections::BTreeMap, sync::Arc};
 
 use maplit::btreemap;
 use serde::{Deserialize, Serialize};
-use trustfall::{execute_query, TransparentValue};
+use trustfall::execute_query;
 
 use crate::adapter::Adapter;
 
 mod adapter;
 
 fn main() {
-    println!("Hello, world!");
-    let contents: Message = serde_json::from_str(include_str!("../VehiclePositions.json"))
-        .expect("couldn't deserialize");
+    let body = reqwest::blocking::get("https://cdn.mbta.com/realtime/VehiclePositions.json")
+        .expect("couldn't pull VehiclePositions.json")
+        .text()
+        .expect("invalid response encoding");
+    let contents: Message = serde_json::from_str(&body).expect("couldn't deserialize");
     let adapter: Adapter = Adapter::new(&contents);
     execute_query(
         Adapter::schema(),
         adapter.into(),
         include_str!("../query.graphql"),
         btreemap! {
-            Arc::from("newRedLineCars") => Arc::from(r"(190\d|19[1-9]\d|20\d{2}|21[0-4]\d|215[01])"),
-            Arc::from("redLineRouteId") => Arc::from("Red"),
+            Arc::from("routeId") => Arc::from("Red"),
         },
     )
     .expect("query failed to parse")
@@ -49,7 +50,7 @@ pub struct TripDescriptor {
     route_id: String,
     schedule_relationship: String,
     start_date: String,
-    start_time: String,
+    start_time: Option<String>,
     trip_id: String,
 }
 
