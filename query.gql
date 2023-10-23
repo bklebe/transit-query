@@ -1,0 +1,14 @@
+{
+  Vehicle {
+    label @output @filter(op: ">=", value: ["$minLabel"])
+    stop {
+      stop: name @output
+    }
+
+    trip {
+      route {
+        long_name @output
+      }
+    }
+  }
+}
