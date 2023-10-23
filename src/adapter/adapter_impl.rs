@@ -105,50 +105,20 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Self::Vertex>> {
         match type_name.as_ref() {
-            "Trip" => match edge_name.as_ref() {
-                "route" => resolve_neighbors_with(contexts, |vertex| {
-                    let route_id = &vertex.as_trip().expect("not a Trip").route_id;
-                    let matching_routes =
-                        self.gtfs_schedule.routes.iter().filter_map(move |vertex| {
-                            if &vertex.route_id == route_id {
-                                Some(Vertex::Route(vertex))
-                            } else {
-                                None
-                            }
-                        });
-                    Box::new(matching_routes)
-                }),
-                _ => super::edges::resolve_trip_edge(
-                    contexts,
-                    edge_name.as_ref(),
-                    parameters,
-                    resolve_info,
-                ),
-            },
-            "Vehicle" => match edge_name.as_ref() {
-                "stop" => resolve_neighbors_with(contexts, |vertex| {
-                    let stop_id = &vertex.as_vehicle().expect("not a Vehicle").stop_id;
-                    if let Some(stop_id) = stop_id {
-                        let matching_stops =
-                            self.gtfs_schedule.stops.iter().filter_map(move |vertex| {
-                                if &vertex.stop_id == stop_id {
-                                    Some(Vertex::Stop(vertex))
-                                } else {
-                                    None
-                                }
-                            });
-                        Box::new(matching_stops)
-                    } else {
-                        Box::new(std::iter::empty())
-                    }
-                }),
-                _ => super::edges::resolve_vehicle_edge(
-                    contexts,
-                    edge_name.as_ref(),
-                    parameters,
-                    resolve_info,
-                ),
-            },
+            "Trip" => super::edges::resolve_trip_edge(
+                self.gtfs_schedule,
+                contexts,
+                edge_name,
+                parameters,
+                resolve_info,
+            ),
+            "Vehicle" => super::edges::resolve_vehicle_edge(
+                self.gtfs_schedule,
+                contexts,
+                edge_name.as_ref(),
+                parameters,
+                resolve_info,
+            ),
             _ => {
                 unreachable!(
                     "attempted to resolve edge '{edge_name}' on unexpected type: {type_name}"

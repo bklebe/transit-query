@@ -3,16 +3,19 @@ use trustfall::provider::{
     VertexIterator,
 };
 
+use crate::gtfs_schedule::GtfsSchedule;
+
 use super::vertex::Vertex;
 
 pub(super) fn resolve_trip_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
+    schedule: &'a GtfsSchedule,
     contexts: ContextIterator<'a, V>,
     edge_name: &str,
     parameters: &EdgeParameters,
     resolve_info: &ResolveEdgeInfo,
 ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
     match edge_name {
-        "route" => trip::route(contexts, resolve_info),
+        "route" => trip::route(&schedule.routes, contexts, resolve_info),
         "vehicle" => trip::vehicle(contexts, resolve_info),
         _ => {
             unreachable!("attempted to resolve unexpected edge '{edge_name}' on type 'Trip'")
@@ -26,9 +29,12 @@ mod trip {
         VertexIterator,
     };
 
+    use crate::gtfs_schedule::Route;
+
     use super::super::vertex::Vertex;
 
     pub(super) fn route<'a, V: AsVertex<Vertex<'a>> + 'a>(
+        routes: &'a [Route],
         contexts: ContextIterator<'a, V>,
         _resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
@@ -36,7 +42,15 @@ mod trip {
             let vertex = vertex
                 .as_trip()
                 .expect("conversion failed, vertex was not a Trip");
-            todo!("get neighbors along edge 'route' for type 'Trip'")
+            let route_id = &vertex.route_id;
+            let matching_routes = routes.iter().filter_map(move |vertex| {
+                if &vertex.route_id == route_id {
+                    Some(Vertex::Route(vertex))
+                } else {
+                    None
+                }
+            });
+            Box::new(matching_routes)
         })
     }
 
@@ -54,13 +68,14 @@ mod trip {
 }
 
 pub(super) fn resolve_vehicle_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
+    schedule: &'a GtfsSchedule,
     contexts: ContextIterator<'a, V>,
     edge_name: &str,
     parameters: &EdgeParameters,
     resolve_info: &ResolveEdgeInfo,
 ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
     match edge_name {
-        "stop" => vehicle::stop(contexts, resolve_info),
+        "stop" => vehicle::stop(&schedule.stops, contexts, resolve_info),
         "trip" => vehicle::trip(contexts, resolve_info),
         _ => {
             unreachable!("attempted to resolve unexpected edge '{edge_name}' on type 'Vehicle'")
@@ -74,11 +89,15 @@ mod vehicle {
         VertexIterator,
     };
 
-    use crate::{VehicleDescriptor, VehiclePosition};
+    use crate::{
+        gtfs_schedule::{GtfsSchedule, Stop},
+        VehicleDescriptor, VehiclePosition,
+    };
 
     use super::super::vertex::Vertex;
 
     pub(super) fn stop<'a, V: AsVertex<Vertex<'a>> + 'a>(
+        stops: &'a [Stop],
         contexts: ContextIterator<'a, V>,
         _resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
@@ -86,7 +105,18 @@ mod vehicle {
             let vertex = vertex
                 .as_vehicle()
                 .expect("conversion failed, vertex was not a Vehicle");
-            todo!("get neighbors along edge 'stop' for type 'Vehicle'")
+            if let Some(stop_id) = &vertex.stop_id {
+                let matching_stops = stops.iter().filter_map(move |vertex| {
+                    if &vertex.stop_id == stop_id {
+                        Some(Vertex::Stop(vertex))
+                    } else {
+                        None
+                    }
+                });
+                Box::new(matching_stops)
+            } else {
+                Box::new(std::iter::empty())
+            }
         })
     }
 
