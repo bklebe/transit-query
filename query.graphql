@@ -4,7 +4,7 @@
 
     trip {
       id @output
-      route_id @output @filter(op: "eq", value: ["$redLineRouteId"])
+      route_id @output @filter(op: "=", value: ["$redLineRouteId"])
     }
   }
 }
