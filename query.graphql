@@ -3,6 +3,9 @@
     label @output @filter(op: "regex", value: ["$newGreenLineCars"])
     latitude @output
     longitude @output
+    stop {
+      name @output
+    }
 
     trip {
       id @output

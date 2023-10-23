@@ -45,7 +45,7 @@ type RootSchemaQuery {
 
 type Trip {
   id: String!
-  route_id: String
+  trip_headsign: String!
 
   route: Route
   vehicle: Vehicle

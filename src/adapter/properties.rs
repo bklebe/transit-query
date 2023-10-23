@@ -32,7 +32,7 @@ pub(super) fn resolve_stop_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
 ) -> ContextOutcomeIterator<'a, V, FieldValue> {
     match property_name {
         "id" => todo!("implement property 'id' in fn `resolve_stop_property()`"),
-        "name" => todo!("implement property 'name' in fn `resolve_stop_property()`"),
+        "name" => resolve_property_with(contexts, field_property!(as_stop, stop_name)),
         _ => {
             unreachable!("attempted to read unexpected property '{property_name}' on type 'Stop'")
         }
