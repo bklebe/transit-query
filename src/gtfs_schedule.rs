@@ -20,14 +20,6 @@ impl GtfsSchedule {
             trips,
         }
     }
-
-    pub(crate) fn new(routes: String, stops: String, trips: String) -> Self {
-        Self {
-            routes: deserialize("routes.txt", routes),
-            stops: deserialize("stops.txt", stops),
-            trips: deserialize("trips.txt", trips),
-        }
-    }
 }
 
 fn deserialize_file<T>(path: &Path, file: &str) -> Vec<T>

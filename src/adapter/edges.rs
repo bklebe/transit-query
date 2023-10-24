@@ -11,7 +11,7 @@ pub(super) fn resolve_trip_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
     schedule: &'a GtfsSchedule,
     contexts: ContextIterator<'a, V>,
     edge_name: &str,
-    parameters: &EdgeParameters,
+    _parameters: &EdgeParameters,
     resolve_info: &ResolveEdgeInfo,
 ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
     match edge_name {
@@ -71,7 +71,7 @@ pub(super) fn resolve_vehicle_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
     schedule: &'a GtfsSchedule,
     contexts: ContextIterator<'a, V>,
     edge_name: &str,
-    parameters: &EdgeParameters,
+    _parameters: &EdgeParameters,
     resolve_info: &ResolveEdgeInfo,
 ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
     match edge_name {
@@ -94,8 +94,8 @@ mod vehicle {
     };
 
     use crate::{
-        gtfs_schedule::{GtfsSchedule, ScheduledTrip, Stop},
-        VehicleDescriptor, VehiclePosition,
+        gtfs_schedule::{ScheduledTrip, Stop},
+        VehiclePosition,
     };
 
     use super::super::vertex::Vertex;

@@ -2,7 +2,7 @@ use std::sync::{Arc, OnceLock};
 
 use trustfall::{
     provider::{
-        resolve_coercion_using_schema, resolve_neighbors_with, resolve_property_with, AsVertex,
+        resolve_coercion_using_schema, resolve_property_with, AsVertex,
         ContextIterator, ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo,
         Typename, VertexIterator,
     },
@@ -49,7 +49,7 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
     fn resolve_starting_vertices(
         &self,
         edge_name: &Arc<str>,
-        parameters: &EdgeParameters,
+        _parameters: &EdgeParameters,
         resolve_info: &ResolveInfo,
     ) -> VertexIterator<'a, Self::Vertex> {
         match edge_name.as_ref() {
