@@ -1,4 +1,4 @@
-use crate::gtfs_schedule::{Route, Stop};
+use crate::gtfs_schedule::{Route, ScheduledTrip, Stop};
 use crate::{CarriageDetails, TripDescriptor, VehiclePosition};
 
 #[non_exhaustive]
@@ -6,7 +6,8 @@ use crate::{CarriageDetails, TripDescriptor, VehiclePosition};
 pub enum Vertex<'a> {
     Route(&'a Route),
     Stop(&'a Stop),
-    Trip(&'a TripDescriptor),
+    Trip(&'a ScheduledTrip),
+    TripDescriptor(&'a TripDescriptor),
     Vehicle(&'a VehiclePosition),
     CarriageDetails(&'a CarriageDetails),
 }

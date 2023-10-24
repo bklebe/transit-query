@@ -76,7 +76,8 @@ pub(super) fn resolve_vehicle_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
 ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
     match edge_name {
         "stop" => vehicle::stop(&schedule.stops, contexts, resolve_info),
-        "trip" => vehicle::trip(contexts, resolve_info),
+        "trip" => vehicle::trip(&schedule.trips, contexts, resolve_info),
+        "trip_descriptor" => vehicle::trip_descriptor(contexts, resolve_info),
         "multi_carriage_details" => vehicle::multi_carriage_details(contexts, resolve_info),
         _ => {
             unreachable!("attempted to resolve unexpected edge '{edge_name}' on type 'Vehicle'")
@@ -93,7 +94,7 @@ mod vehicle {
     };
 
     use crate::{
-        gtfs_schedule::{GtfsSchedule, Stop},
+        gtfs_schedule::{GtfsSchedule, ScheduledTrip, Stop},
         VehicleDescriptor, VehiclePosition,
     };
 
@@ -124,6 +125,7 @@ mod vehicle {
     }
 
     pub(super) fn trip<'a, V: AsVertex<Vertex<'a>> + 'a>(
+        trips: &'a [ScheduledTrip],
         contexts: ContextIterator<'a, V>,
         _resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
@@ -131,7 +133,35 @@ mod vehicle {
             let vertex: &VehiclePosition = vertex
                 .as_vehicle()
                 .expect("conversion failed, vertex was not a Vehicle");
-            Box::new(vertex.trip.as_ref().map(Vertex::Trip).into_iter())
+            if let Some(trip_id) = vertex.trip.as_ref().map(|trip| &trip.trip_id) {
+                let matching_stops = trips.iter().filter_map(move |vertex| {
+                    if &vertex.trip_id == trip_id {
+                        Some(Vertex::Trip(vertex))
+                    } else {
+                        None
+                    }
+                });
+                Box::new(matching_stops)
+            } else {
+                Box::new(std::iter::empty())
+            }
+        })
+    }
+
+    pub(super) fn trip_descriptor<'a, V: AsVertex<Vertex<'a>> + 'a>(
+        contexts: ContextIterator<'a, V>,
+        _resolve_info: &ResolveEdgeInfo,
+    ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
+        resolve_neighbors_with(contexts, |vertex| {
+            let vertex: &VehiclePosition = vertex
+                .as_vehicle()
+                .expect("conversion failed, vertex was not a Vehicle");
+
+            if let Some(trip_descriptor) = &vertex.trip {
+                return Box::new(iter::once(Vertex::TripDescriptor(trip_descriptor)));
+            } else {
+                Box::new(std::iter::empty())
+            }
         })
     }
 

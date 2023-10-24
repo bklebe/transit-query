@@ -44,8 +44,14 @@ where
         .unwrap_or_else(|_| panic!("couldn't pull {}", url))
         .text()
         .expect("invalid response encoding");
-    let contents: T = serde_json::from_str(&body).expect("couldn't deserialize");
-    contents
+    deserialize_feed(&body)
+}
+
+pub(crate) fn deserialize_feed<T>(text: &str) -> T
+where
+    T: DeserializeOwned,
+{
+    serde_json::from_str(text).expect("couldn't deserialize")
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

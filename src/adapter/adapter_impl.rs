@@ -95,6 +95,11 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
                 property_name.as_ref(),
                 resolve_info,
             ),
+            "TripDescriptor" => super::properties::resolve_trip_descriptor_property(
+                contexts,
+                property_name.as_ref(),
+                resolve_info,
+            ),
             "Vehicle" => super::properties::resolve_vehicle_property(
                 contexts,
                 property_name.as_ref(),
@@ -118,6 +123,13 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Self::Vertex>> {
         match type_name.as_ref() {
             "Trip" => super::edges::resolve_trip_edge(
+                self.gtfs_schedule,
+                contexts,
+                edge_name,
+                parameters,
+                resolve_info,
+            ),
+            "TripDescriptor" => super::edges::resolve_trip_edge(
                 self.gtfs_schedule,
                 contexts,
                 edge_name,

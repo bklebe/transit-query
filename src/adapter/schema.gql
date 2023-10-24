@@ -45,7 +45,19 @@ type RootSchemaQuery {
 
 type Trip {
   id: String!
+  direction_id: Int!
   trip_headsign: String!
+
+  route: Route
+  vehicle: Vehicle
+}
+
+type TripDescriptor {
+  id: String!
+  direction_id: Int
+  start_time: String
+  start_date: String
+  schedule_relationship: String
 
   route: Route
   vehicle: Vehicle
@@ -56,12 +68,6 @@ type Vehicle {
   label: String!
   latitude: Float!
   longitude: Float!
-  trip_id: String
-  route_id: String
-  direction_id: Int
-  start_time: String
-  start_date: String
-  schedule_relationship: String
   current_stop_sequence: Int
   current_status: String
   timestamp: Int
@@ -71,6 +77,7 @@ type Vehicle {
 
   stop: Stop
   trip: Trip
+  trip_descriptor: TripDescriptor
 }
 
 type CarriageDetails {

@@ -6,28 +6,47 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub(crate) struct GtfsSchedule {
     pub routes: Vec<Route>,
     pub stops: Vec<Stop>,
+    pub trips: Vec<ScheduledTrip>,
 }
 
 impl GtfsSchedule {
     pub(crate) fn from_path(path: &Path) -> Self {
-        let routes = deserialize_file(path, Path::new("routes.txt"));
-        let stops = deserialize_file(path, Path::new("stops.txt"));
+        let routes = deserialize_file(path, "routes.txt");
+        let stops = deserialize_file(path, "stops.txt");
+        let trips = deserialize_file(path, "trips.txt");
+        Self {
+            routes,
+            stops,
+            trips,
+        }
+    }
 
-        Self { routes, stops }
+    pub(crate) fn new(routes: String, stops: String, trips: String) -> Self {
+        Self {
+            routes: deserialize("routes.txt", routes),
+            stops: deserialize("stops.txt", stops),
+            trips: deserialize("trips.txt", trips),
+        }
     }
 }
 
-fn deserialize_file<T>(path: &Path, file: &Path) -> Vec<T>
+fn deserialize_file<T>(path: &Path, file: &str) -> Vec<T>
 where
     T: DeserializeOwned,
 {
-    let text = fs::read_to_string(path.join(file))
-        .unwrap_or_else(|_| panic!("couldn't read {}", file.display()));
-    let routes = csv::Reader::from_reader(text.as_bytes())
+    let text = fs::read_to_string(path.join(Path::new(file)))
+        .unwrap_or_else(|_| panic!("couldn't read {}", file));
+    deserialize(file, text)
+}
+
+fn deserialize<T>(name: &str, text: String) -> Vec<T>
+where
+    T: DeserializeOwned,
+{
+    csv::Reader::from_reader(text.as_bytes())
         .deserialize()
         .collect::<Result<Vec<T>, _>>()
-        .unwrap_or_else(|_| panic!("couldn't deserialize {}", file.display()));
-    routes
+        .unwrap_or_else(|_| panic!("couldn't deserialize {}", name))
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
