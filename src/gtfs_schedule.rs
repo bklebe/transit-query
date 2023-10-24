@@ -6,7 +6,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub(crate) struct GtfsSchedule {
     pub routes: Vec<Route>,
     pub stops: Vec<Stop>,
-    pub trips: Vec<ScheduledTrip>,
+    pub trips: Vec<Trip>,
 }
 
 impl GtfsSchedule {
@@ -55,12 +55,15 @@ pub struct Stop {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ScheduledTrip {
+pub struct Trip {
     pub(super) route_id: String,
-    pub(super) service_id: String,
+    pub(super) service_id: Option<String>,
     pub(super) trip_id: String,
-    pub(super) trip_headsign: String,
+    pub(super) trip_headsign: Option<String>,
     pub(super) direction_id: i64,
-    pub(super) shape_id: String,
-    pub(super) block_id: String,
+    pub(super) shape_id: Option<String>,
+    pub(super) block_id: Option<String>,
+    pub(super) start_time: Option<String>,
+    pub(super) start_date: Option<String>,
+    pub(super) schedule_relationship: Option<String>,
 }

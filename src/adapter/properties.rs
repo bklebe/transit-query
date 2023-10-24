@@ -55,37 +55,6 @@ pub(super) fn resolve_trip_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
     }
 }
 
-pub(super) fn resolve_trip_descriptor_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
-    contexts: ContextIterator<'a, V>,
-    property_name: &str,
-    _resolve_info: &ResolveInfo,
-) -> ContextOutcomeIterator<'a, V, FieldValue> {
-    match property_name {
-        "id" => resolve_property_with(contexts, field_property!(as_trip_descriptor, trip_id)),
-        "direction_id" => {
-            resolve_property_with(contexts, field_property!(as_trip_descriptor, direction_id))
-        }
-        "route_id" => {
-            resolve_property_with(contexts, field_property!(as_trip_descriptor, route_id))
-        }
-        "start_time" => {
-            resolve_property_with(contexts, field_property!(as_trip_descriptor, start_time))
-        }
-        "start_date" => {
-            resolve_property_with(contexts, field_property!(as_trip_descriptor, start_date))
-        }
-        "schedule_relationship" => resolve_property_with(
-            contexts,
-            field_property!(as_trip_descriptor, schedule_relationship),
-        ),
-        _ => {
-            unreachable!(
-                "attempted to read unexpected property '{property_name}' on type 'TripDescriptor'"
-            )
-        }
-    }
-}
-
 pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
     contexts: ContextIterator<'a, V>,
     property_name: &str,
@@ -102,6 +71,12 @@ pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
         "current_stop_sequence" => {
             resolve_property_with(contexts, field_property!(as_vehicle, current_stop_sequence))
         }
+        "direction_id" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.direction_id).into()
+            }),
+        ),
         "label" => resolve_property_with(
             contexts,
             field_property!(as_vehicle, vehicle, { vehicle.label.clone().into() }),
@@ -116,6 +91,26 @@ pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
             contexts,
             field_property!(as_vehicle, position, {
                 FieldValue::Float64(position.longitude)
+            }),
+        ),
+        "schedule_relationship" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref()
+                    .map(|t| t.schedule_relationship.clone())
+                    .into()
+            }),
+        ),
+        "start_time" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.start_time.clone()).into()
+            }),
+        ),
+        "start_date" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.start_date.clone()).into()
             }),
         ),
         "occupancy_percentage" => {
