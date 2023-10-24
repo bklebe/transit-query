@@ -86,3 +86,28 @@ pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
         }
     }
 }
+
+pub(super) fn resolve_carriage_details_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
+    contexts: ContextIterator<'a, V>,
+    property_name: &str,
+    _resolve_info: &ResolveInfo,
+) -> ContextOutcomeIterator<'a, V, FieldValue> {
+    match property_name {
+        "id" => resolve_property_with(contexts, field_property!(as_carriage_details, id)),
+        "label" => resolve_property_with(contexts, field_property!(as_carriage_details, label)),
+        "occupancy_percentage" => resolve_property_with(
+            contexts,
+            field_property!(as_carriage_details, occupancy_percentage),
+        ),
+        "occupancy_status" => resolve_property_with(
+            contexts,
+            field_property!(as_carriage_details, occupancy_status),
+        ),
+
+        _ => {
+            unreachable!(
+                "attempted to read unexpected property '{property_name}' on type 'CarriageDetails'"
+            )
+        }
+    }
+}

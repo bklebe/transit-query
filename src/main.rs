@@ -15,7 +15,7 @@ fn main() {
     let trip_updates = get_feed("https://cdn.mbta.com/realtime/TripUpdates.json");
     let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
     let adapter: Adapter = Adapter::new(&contents, &trip_updates, &schedule);
-    let variables: BTreeMap<Arc<str>, Arc<str>> = btreemap! {Arc::from("minLabel") => Arc::from("3900")};
+    let variables: BTreeMap<Arc<str>, Arc<str>> = BTreeMap::new(); // btreemap! {Arc::from("minLabel") => Arc::from("3900")};
     execute_query(
         Adapter::schema(),
         adapter.into(),
@@ -66,6 +66,15 @@ pub struct TripDescriptor {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CarriageDetails {
+    carriage_sequence: i64,
+    id: Option<String>,
+    label: String,
+    occupancy_percentage: i64,
+    occupancy_status: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct VehicleDescriptor {
     id: String,
     label: Option<String>,
@@ -77,6 +86,7 @@ pub struct VehiclePosition {
     current_stop_sequence: Option<i64>,
     occupancy_percentage: Option<i64>,
     occupancy_status: Option<String>,
+    multi_carriage_details: Option<Vec<CarriageDetails>>,
     position: Position,
     stop_id: Option<String>,
     timestamp: i64,

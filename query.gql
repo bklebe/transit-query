@@ -1,14 +1,13 @@
 {
   Vehicle {
-    label @output @filter(op: ">=", value: ["$minLabel"])
     stop {
       stop: name @output
     }
 
-    trip {
-      route {
-        long_name @output @filter(op: "!=", value: [short_name])
-      }
+    multi_carriage_details {
+      label @output
+      occupancy_percentage @output
+      occupancy_status @output
     }
   }
 }

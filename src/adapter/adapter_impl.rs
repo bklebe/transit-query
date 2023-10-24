@@ -75,6 +75,11 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
         }
 
         match type_name.as_ref() {
+            "CarriageDetails" => super::properties::resolve_carriage_details_property(
+                contexts,
+                property_name.as_ref(),
+                resolve_info,
+            ),
             "Route" => super::properties::resolve_route_property(
                 contexts,
                 property_name.as_ref(),
