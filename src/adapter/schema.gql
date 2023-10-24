@@ -56,15 +56,6 @@ type Trip {
   vehicles: [Vehicle!]
 }
 
-type TripDescriptor {
-  id: String
-  direction_id: Int
-  trip_headsign: String
-  start_time: String
-  start_date: String
-  schedule_relationship: String
-}
-
 type Vehicle {
   id: String!
   label: String!

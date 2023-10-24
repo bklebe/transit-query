@@ -63,4 +63,7 @@ pub struct Trip {
     pub(super) direction_id: i64,
     pub(super) shape_id: Option<String>,
     pub(super) block_id: Option<String>,
+    pub(super) start_time: Option<String>,
+    pub(super) start_date: Option<String>,
+    pub(super) schedule_relationship: Option<String>,
 }

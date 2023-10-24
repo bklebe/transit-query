@@ -2,14 +2,16 @@ use std::sync::{Arc, OnceLock};
 
 use trustfall::{
     provider::{
-        resolve_coercion_using_schema, resolve_property_with, AsVertex,
-        ContextIterator, ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo,
-        Typename, VertexIterator,
+        resolve_coercion_using_schema, resolve_property_with, AsVertex, ContextIterator,
+        ContextOutcomeIterator, EdgeParameters, ResolveEdgeInfo, ResolveInfo, Typename,
+        VertexIterator,
     },
     FieldValue, Schema,
 };
 
-use crate::{gtfs_schedule::GtfsSchedule, TripUpdates, VehiclePositions};
+use crate::{
+    gtfs_realtime::TripUpdates, gtfs_realtime::VehiclePositions, gtfs_schedule::GtfsSchedule,
+};
 
 use super::vertex::Vertex;
 

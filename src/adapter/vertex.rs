@@ -1,5 +1,7 @@
-use crate::gtfs_schedule::{Route, Trip, Stop};
-use crate::{CarriageDetails, TripDescriptor, VehiclePosition};
+use crate::{
+    gtfs_realtime::{CarriageDetails, TripDescriptor, VehiclePosition},
+    gtfs_schedule::{Route, Stop, Trip},
+};
 
 #[non_exhaustive]
 #[derive(Debug, Clone, trustfall::provider::TrustfallEnumVertex)]

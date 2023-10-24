@@ -77,7 +77,7 @@ pub(super) fn resolve_vehicle_edge<'a, V: AsVertex<Vertex<'a>> + 'a>(
     match edge_name {
         "stop" => vehicle::stop(&schedule.stops, contexts, resolve_info),
         "trip" => vehicle::trip(&schedule.trips, contexts, resolve_info),
-        "trip_descriptor" => vehicle::trip_descriptor(contexts, resolve_info),
+        "trip_descriptor" => vehicle::trip(&schedule.trips, contexts, resolve_info),
         "multi_carriage_details" => vehicle::multi_carriage_details(contexts, resolve_info),
         _ => {
             unreachable!("attempted to resolve unexpected edge '{edge_name}' on type 'Vehicle'")
@@ -94,8 +94,8 @@ mod vehicle {
     };
 
     use crate::{
-        gtfs_schedule::{Trip, Stop},
-        VehiclePosition,
+        gtfs_realtime::VehiclePosition,
+        gtfs_schedule::{Stop, Trip},
     };
 
     use super::super::vertex::Vertex;
@@ -142,23 +142,6 @@ mod vehicle {
                     }
                 });
                 Box::new(matching_stops)
-            } else {
-                Box::new(std::iter::empty())
-            }
-        })
-    }
-
-    pub(super) fn trip_descriptor<'a, V: AsVertex<Vertex<'a>> + 'a>(
-        contexts: ContextIterator<'a, V>,
-        _resolve_info: &ResolveEdgeInfo,
-    ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
-        resolve_neighbors_with(contexts, |vertex| {
-            let vertex: &VehiclePosition = vertex
-                .as_vehicle()
-                .expect("conversion failed, vertex was not a Vehicle");
-
-            if let Some(trip_descriptor) = &vertex.trip {
-                return Box::new(iter::once(Vertex::TripDescriptor(trip_descriptor)));
             } else {
                 Box::new(std::iter::empty())
             }

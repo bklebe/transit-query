@@ -2,13 +2,15 @@ use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 use gtfs_schedule::GtfsSchedule;
 use maplit::btreemap;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::de::DeserializeOwned;
 use trustfall::{execute_query, TransparentValue};
 
 use crate::adapter::Adapter;
 
 mod adapter;
+mod gtfs_realtime;
 mod gtfs_schedule;
+pub use gtfs_realtime::*;
 
 fn main() {
     let contents = get_feed("https://cdn.mbta.com/realtime/VehiclePositions.json");
@@ -52,91 +54,4 @@ where
     T: DeserializeOwned,
 {
     serde_json::from_str(text).expect("couldn't deserialize")
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct Position {
-    bearing: i64,
-    latitude: f64,
-    longitude: f64,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TripDescriptor {
-    direction_id: i64,
-    route_id: String,
-    schedule_relationship: Option<String>,
-    start_date: Option<String>,
-    start_time: Option<String>,
-    trip_id: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CarriageDetails {
-    carriage_sequence: i64,
-    id: Option<String>,
-    label: String,
-    occupancy_percentage: i64,
-    occupancy_status: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct VehicleDescriptor {
-    id: String,
-    label: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct VehiclePosition {
-    current_status: Option<String>,
-    current_stop_sequence: Option<i64>,
-    occupancy_percentage: Option<i64>,
-    occupancy_status: Option<String>,
-    multi_carriage_details: Option<Vec<CarriageDetails>>,
-    position: Position,
-    stop_id: Option<String>,
-    timestamp: i64,
-    trip: Option<TripDescriptor>,
-    vehicle: VehicleDescriptor,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct VehicleEntity {
-    id: String,
-    vehicle: VehiclePosition,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct VehiclePositions {
-    entity: Vec<VehicleEntity>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct TripEntity {
-    id: String,
-    trip_update: TripUpdate,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct StopTimeEvent {
-    time: i64,
-}
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct StopTimeUpdate {
-    arrival: Option<StopTimeEvent>,
-    departure: Option<StopTimeEvent>,
-    stop_id: String,
-    stop_sequence: i64,
-}
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct TripUpdate {
-    stop_time_update: Option<Vec<StopTimeUpdate>>,
-    timestamp: Option<i64>,
-    trip: TripDescriptor,
-    vehicle: Option<VehicleDescriptor>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct TripUpdates {
-    entity: Vec<TripEntity>,
 }
