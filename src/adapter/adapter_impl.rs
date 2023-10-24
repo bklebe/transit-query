@@ -95,11 +95,6 @@ impl<'a> trustfall::provider::Adapter<'a> for Adapter<'a> {
                 property_name.as_ref(),
                 resolve_info,
             ),
-            "TripDescriptor" => super::properties::resolve_trip_descriptor_property(
-                contexts,
-                property_name.as_ref(),
-                resolve_info,
-            ),
             "Vehicle" => super::properties::resolve_vehicle_property(
                 contexts,
                 property_name.as_ref(),

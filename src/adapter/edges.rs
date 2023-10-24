@@ -94,7 +94,7 @@ mod vehicle {
     };
 
     use crate::{
-        gtfs_schedule::{ScheduledTrip, Stop},
+        gtfs_schedule::{Trip, Stop},
         VehiclePosition,
     };
 
@@ -125,7 +125,7 @@ mod vehicle {
     }
 
     pub(super) fn trip<'a, V: AsVertex<Vertex<'a>> + 'a>(
-        trips: &'a [ScheduledTrip],
+        trips: &'a [Trip],
         contexts: ContextIterator<'a, V>,
         _resolve_info: &ResolveEdgeInfo,
     ) -> ContextOutcomeIterator<'a, V, VertexIterator<'a, Vertex<'a>>> {
