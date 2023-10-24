@@ -102,6 +102,12 @@ pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
         "current_stop_sequence" => {
             resolve_property_with(contexts, field_property!(as_vehicle, current_stop_sequence))
         }
+        "direction_id" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.direction_id).into()
+            }),
+        ),
         "label" => resolve_property_with(
             contexts,
             field_property!(as_vehicle, vehicle, { vehicle.label.clone().into() }),
@@ -116,6 +122,18 @@ pub(super) fn resolve_vehicle_property<'a, V: AsVertex<Vertex<'a>> + 'a>(
             contexts,
             field_property!(as_vehicle, position, {
                 FieldValue::Float64(position.longitude)
+            }),
+        ),
+        "start_time" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.start_time.clone()).into()
+            }),
+        ),
+        "start_date" => resolve_property_with(
+            contexts,
+            field_property!(as_vehicle, trip, {
+                trip.as_ref().map(|t| t.start_date.clone()).into()
             }),
         ),
         "occupancy_percentage" => {
