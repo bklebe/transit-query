@@ -1,7 +1,13 @@
 {
   Vehicle {
-    stop {
-      stop: name @output
+    lead_car: label @output
+    latitude @output
+    longitude @output
+
+    trip_descriptor {
+      route {
+        route: long_name @output
+      }
     }
 
     multi_carriage_details {
