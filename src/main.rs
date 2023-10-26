@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, path::Path, sync::Arc};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use gtfs_schedule::GtfsSchedule;
 use maplit::btreemap;
@@ -12,7 +16,22 @@ mod gtfs_realtime;
 mod gtfs_schedule;
 pub use gtfs_realtime::*;
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+struct CliArgs {
+    #[arg(default_value = "./query.gql")]
+    query_file: PathBuf,
+}
+
 fn main() {
+    let args = CliArgs::parse();
+
+    let file_contents = std::fs::read_to_string(&args.query_file).expect(&format!(
+        "Could not open file {}",
+        args.query_file.display()
+    ));
+
     let contents = get_feed("https://cdn.mbta.com/realtime/VehiclePositions.json");
     let trip_updates = get_feed("https://cdn.mbta.com/realtime/TripUpdates.json");
     let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
@@ -21,7 +40,7 @@ fn main() {
     execute_query(
         Adapter::schema(),
         adapter.into(),
-        include_str!("../query.gql"),
+        &file_contents,
         variables,
     )
     .expect("query failed to parse")
