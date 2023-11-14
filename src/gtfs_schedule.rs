@@ -7,6 +7,7 @@ pub(crate) struct GtfsSchedule {
     pub routes: Vec<Route>,
     pub stops: Vec<Stop>,
     pub trips: Vec<Trip>,
+    pub stop_times: Vec<StopTime>,
 }
 
 impl GtfsSchedule {
@@ -14,10 +15,12 @@ impl GtfsSchedule {
         let routes = deserialize_file(path, "routes.txt");
         let stops = deserialize_file(path, "stops.txt");
         let trips = deserialize_file(path, "trips.txt");
+        let stop_times = deserialize_file(path, "stop_times.txt");
         Self {
             routes,
             stops,
             trips,
+            stop_times,
         }
     }
 }
@@ -39,6 +42,12 @@ where
         .deserialize()
         .collect::<Result<Vec<T>, _>>()
         .unwrap_or_else(|_| panic!("couldn't deserialize {}", name))
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+
+pub struct StopTime {
+    pub(super) trip_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
