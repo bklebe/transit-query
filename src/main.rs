@@ -37,24 +37,19 @@ fn main() {
     let schedule = GtfsSchedule::from_path(Path::new("../MBTA_GTFS"));
     let adapter: Adapter = Adapter::new(&contents, &trip_updates, &schedule);
     let variables: BTreeMap<Arc<str>, Arc<str>> = BTreeMap::new(); // btreemap! {Arc::from("minLabel") => Arc::from("3900")};
-    execute_query(
-        Adapter::schema(),
-        adapter.into(),
-        &file_contents,
-        variables,
-    )
-    .expect("query failed to parse")
-    .map(|v| {
-        v.into_iter()
-            .map(|(k, v)| (k, TransparentValue::from(v)))
-            .collect::<BTreeMap<_, _>>()
-    })
-    .for_each(|result| {
-        println!(
-            "{}",
-            serde_json::to_string_pretty(&result).expect("failed to serialize result")
-        )
-    });
+    execute_query(Adapter::schema(), adapter.into(), &file_contents, variables)
+        .expect("query failed to parse")
+        .map(|v| {
+            v.into_iter()
+                .map(|(k, v)| (k, TransparentValue::from(v)))
+                .collect::<BTreeMap<_, _>>()
+        })
+        .for_each(|result| {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&result).expect("failed to serialize result")
+            )
+        });
 }
 
 fn get_feed<T>(url: &str) -> T
