@@ -24,7 +24,7 @@ pub struct CarriageDetails {
     carriage_sequence: i64,
     pub(crate) id: Option<String>,
     pub(crate) label: String,
-    pub(crate) occupancy_percentage: i64,
+    pub(crate) occupancy_percentage: Option<i64>,
     pub(crate) occupancy_status: String,
 }
 
@@ -43,7 +43,7 @@ pub struct VehiclePosition {
     pub(crate) multi_carriage_details: Option<Vec<CarriageDetails>>,
     pub(crate) position: Position,
     pub(crate) stop_id: Option<String>,
-    pub(crate) timestamp: i64,
+    pub(crate) timestamp: Option<i64>,
     pub(crate) trip: Option<Trip>,
     pub(crate) vehicle: VehicleDescriptor,
 }

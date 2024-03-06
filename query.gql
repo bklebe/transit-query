@@ -6,6 +6,7 @@
 
     trip_descriptor {
       route {
+        id
         route: long_name @output
       }
     }
